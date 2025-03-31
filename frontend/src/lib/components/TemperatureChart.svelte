@@ -3,18 +3,20 @@
   import Chart from 'chart.js/auto';
   import type { SensorReading } from '$lib/types';
 
-  export let data: SensorReading[];
+  const { data } = $props<{ data: SensorReading[] }>();
   let canvas: HTMLCanvasElement;
-  let chart: Chart;
+  let chart = $state<Chart | undefined>(undefined);
 
-  $: if (chart && data) {
-    chart.data.labels = data.map(reading => {
-      const date = new Date(reading.timestamp);
-      return date.toLocaleTimeString();
-    });
-    chart.data.datasets[0].data = data.map(reading => reading.temperature);
-    chart.update();
-  }
+  $effect(() => {
+    if (chart && data) {
+      chart.data.labels = data.map(reading => {
+        const date = new Date(reading.timestamp);
+        return date.toLocaleTimeString();
+      });
+      chart.data.datasets[0].data = data.map(reading => reading.temperature);
+      chart.update();
+    }
+  });
 
   onMount(() => {
     chart = new Chart(canvas, {
@@ -45,7 +47,7 @@
     });
 
     return () => {
-      chart.destroy();
+      if (chart) chart.destroy();
     };
   });
 </script>
