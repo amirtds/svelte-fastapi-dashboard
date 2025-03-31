@@ -1,8 +1,10 @@
 <script lang="ts">
   import { fade } from 'svelte/transition';
-  
-  export let message: string;
-  export let type: 'warning' | 'critical' = 'warning';
+
+  const { message, type = 'warning' } = $props<{ 
+    message: string; 
+    type?: 'warning' | 'critical'
+  }>();
 </script>
 
 {#if message}
@@ -25,15 +27,15 @@
     gap: 0.5rem;
     z-index: 1000;
   }
-  
+
   .warning {
     background-color: #f1c40f;
   }
-  
+
   .critical {
     background-color: #e74c3c;
   }
-  
+
   .alert-icon {
     font-size: 1.2rem;
   }

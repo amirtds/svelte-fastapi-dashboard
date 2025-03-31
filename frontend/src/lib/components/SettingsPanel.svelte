@@ -1,15 +1,21 @@
 <script lang="ts">
   import { fade } from 'svelte/transition';
+
+  const props = $props<{
+    tempThreshold?: number;
+    humidityThreshold?: number;
+    onTempChange?: (value: number) => void;
+    onHumidityChange?: (value: number) => void;
+  }>();
   
-  export let tempThreshold = 25;
-  export let humidityThreshold = 60;
-  let isOpen = false;
-  
+  let localTempThreshold = $state(props.tempThreshold ?? 25);
+  let localHumidityThreshold = $state(props.humidityThreshold ?? 60);
+  let isOpen = $state(false);
+
   function updateSettings() {
-    // Save the settings
-    tempThreshold = tempThreshold;
-    humidityThreshold = humidityThreshold;
-    // Close the panel
+    // Send values back to parent
+    props.onTempChange?.(localTempThreshold);
+    props.onHumidityChange?.(localHumidityThreshold);
     isOpen = false;
   }
 </script>
@@ -18,20 +24,20 @@
   <button class="settings-button" on:click={() => isOpen = !isOpen}>
     ⚙️ Settings
   </button>
-  
+
   {#if isOpen}
     <div class="settings-panel" transition:fade>
       <h3>Alert Thresholds</h3>
       <div class="setting-group">
         <label>
           Temperature (°C)
-          <input type="number" bind:value={tempThreshold} min="0" max="40" step="0.5">
+          <input type="number" bind:value={localTempThreshold} min="0" max="40" step="0.5">
         </label>
       </div>
       <div class="setting-group">
         <label>
           Humidity (%)
-          <input type="number" bind:value={humidityThreshold} min="0" max="100" step="5">
+          <input type="number" bind:value={localHumidityThreshold} min="0" max="100" step="5">
         </label>
       </div>
       <div class="button-group">
@@ -49,7 +55,7 @@
     right: 1rem;
     z-index: 1000;
   }
-  
+
   .settings-button {
     background: #2c3e50;
     color: white;
@@ -59,11 +65,11 @@
     cursor: pointer;
     transition: background-color 0.2s;
   }
-  
+
   .settings-button:hover {
     background: #34495e;
   }
-  
+
   .settings-panel {
     position: absolute;
     bottom: 100%;
@@ -76,17 +82,17 @@
     min-width: 280px;
     color: #2c3e50;
   }
-  
+
   h3 {
     margin: 0 0 1rem 0;
     font-size: 1.2rem;
     color: #2c3e50;
   }
-  
+
   .setting-group {
     margin: 1rem 0;
   }
-  
+
   label {
     display: flex;
     flex-direction: column;
@@ -94,7 +100,7 @@
     font-size: 0.9rem;
     color: #34495e;
   }
-  
+
   input {
     padding: 0.5rem;
     border: 1px solid #ddd;
@@ -102,20 +108,20 @@
     font-size: 1rem;
     width: 100%;
   }
-  
+
   input:focus {
     outline: none;
     border-color: #3498db;
     box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
   }
-  
+
   .button-group {
     display: flex;
     justify-content: flex-end;
     gap: 0.5rem;
     margin-top: 1.5rem;
   }
-  
+
   .button-group button {
     padding: 0.5rem 1rem;
     border: none;
@@ -124,16 +130,16 @@
     font-size: 0.9rem;
     transition: opacity 0.2s;
   }
-  
+
   .button-group button:hover {
     opacity: 0.9;
   }
-  
+
   .save {
     background: #2ecc71;
     color: white;
   }
-  
+
   .cancel {
     background: #95a5a6;
     color: white;

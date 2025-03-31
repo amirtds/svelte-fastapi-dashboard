@@ -2,14 +2,16 @@
   import { onMount } from 'svelte';
   import Chart from 'chart.js/auto';
 
-  export let value: number;
+  const { value } = $props<{ value: number }>();
   let canvas: HTMLCanvasElement;
-  let chart: Chart;
+  let chart = $state<Chart | undefined>(undefined);
 
-  $: if (chart && value !== undefined) {
-    chart.data.datasets[0].data = [value];
-    chart.update();
-  }
+  $effect(() => {
+    if (chart && value !== undefined) {
+      chart.data.datasets[0].data = [value];
+      chart.update();
+    }
+  });
 
   onMount(() => {
     chart = new Chart(canvas, {
@@ -34,7 +36,7 @@
     });
 
     return () => {
-      chart.destroy();
+      if (chart) chart.destroy();
     };
   });
 </script>
